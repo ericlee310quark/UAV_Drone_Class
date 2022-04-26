@@ -71,7 +71,7 @@ if __name__ == '__main__':
                 cv2.imshow('frame', frame)
                 #cv2.waitKey(33)
                 key = cv2.waitKey(1)
-
+                #
                 #if key!=-1:
                 #    drone.keyboard(key)
         else:
