@@ -4,7 +4,7 @@ import cv2
 
 if __name__ == '__main__':
     img = cv2.imread(path.join('nctu_flag.jpg'))
-   
+   #123
     img2 = img.copy()
     height, width = img.shape[:2]
     print(height, width)
