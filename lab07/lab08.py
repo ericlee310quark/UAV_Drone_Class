@@ -25,7 +25,7 @@ def createHOGDescriptor(frame):
     # is padded to improve accuracy; a smaller scale value will increase detection accuracy,
     # but also increase processing time
     #rects, weights = hog.detectMultiScale(frame, winStride=(4, 4),padding=(8, 8), scale=1.1)
-    rects, weights = hog.detectMultiScale(frame, winStride=(4, 4),padding=(8, 8), scale=1.3)
+    rects, weights = hog.detectMultiScale(frame, winStride=(4, 4),padding=(8, 8), scale=1.275)
     # For each of the rects detected in an image, add the values for the corners
     # of the rect to an array
     rects = np.array([[x, y, x + width, y + height] for (x, y, width, height) in rects])
@@ -88,7 +88,7 @@ if __name__ == '__main__':
                     frame_output = cv2.rectangle(frame_output, (x1, y1), (x2, y2), FACE_BOX_COLOR, 2)
                 
                 HUMAN_BOX_COLOR= (0, 0, 255)
-                MUL = 1.8
+                MUL = 1
                 frame2 =cv2.resize(frame, dsize=None, fx=1/MUL, fy=1/MUL)
                 rects = createHOGDescriptor(frame2)
                 for (x1, y1, x2, y2) in rects:
