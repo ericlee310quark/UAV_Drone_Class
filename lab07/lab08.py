@@ -4,7 +4,13 @@ import cv2
 import glob
 import time
 import math
-import dlib
+#import dlib
+
+refHuman =[[0.0,193,0.0],[91.0,193.0,0.0],[91.0,0.0,0.0],[0.0,0.0,0.0]]
+refHuman = np.array(refHuman,dtype=np.float32)
+refFace =[[0.0,14.0,0.0],[12.0,14.0,0.0],[12.0,0.0,0.0],[0.0,0.0,0.0]]
+refFace = np.array(refFace,dtype=np.float32)
+
 
 
 def createHOGDescriptor(frame):
@@ -19,7 +25,7 @@ def createHOGDescriptor(frame):
     # is padded to improve accuracy; a smaller scale value will increase detection accuracy,
     # but also increase processing time
     #rects, weights = hog.detectMultiScale(frame, winStride=(4, 4),padding=(8, 8), scale=1.1)
-    rects, weights = hog.detectMultiScale(frame, winStride=(4, 4),padding=(8, 8), scale=1.1)
+    rects, weights = hog.detectMultiScale(frame, winStride=(4, 4),padding=(8, 8), scale=1.3)
     # For each of the rects detected in an image, add the values for the corners
     # of the rect to an array
     rects = np.array([[x, y, x + width, y + height] for (x, y, width, height) in rects])
@@ -48,32 +54,65 @@ if __name__ == '__main__':
                 
                 FACE_BOX_COLOR= (0, 255, 0)
                 ret, frame = cap.read()
-                MUL = 1.5
+                MUL = 1.25
+                frame_output = frame.copy()
+                """
                 frame2 =cv2.resize(frame, dsize=None, fx=1/MUL, fy=1/MUL)
                 detector = dlib.get_frontal_face_detector()
                 face_rects = detector(frame2, 0)
+                
                 for i, d in enumerate(face_rects):
                     x1 = round(int(d.left())*MUL)
                     y1 = round(int(d.top())*MUL)
                     x2 = round(int(d.right())*MUL)
                     y2 =  round(int(d.bottom())*MUL)
-                    frame = cv2.rectangle(frame, (x1, y1), (x2, y2), FACE_BOX_COLOR, 2)
+
+                    face_point = []
+                    face_point.append([x1,y1])
+                    face_point.append([x2,y1])
+                    face_point.append([x2,y2])
+                    face_point.append([x1,y2])
+                    face_point2 = np.array(face_point,dtype=np.float64)
+
+                    ret_val_f, rvec_f, tvec_f = cv2.solvePnP(refFace,face_point2,intrinsic,distortion)
+                    
+                    print(tvec_f[2])
+                    text ="face:{} cm".format(tvec_f[2])
+
+                    
+                    cv2.putText(frame_output, text, (x1, y2-10), cv2.FONT_HERSHEY_SIMPLEX, 1, FACE_BOX_COLOR, 1, cv2.LINE_AA)
+
+                    frame_output = cv2.rectangle(frame_output, (x1, y1), (x2, y2), FACE_BOX_COLOR, 2)
+                """
                 HUMAN_BOX_COLOR= (0, 0, 255)
+                MUL = 1.8
+                frame2 =cv2.resize(frame, dsize=None, fx=1/MUL, fy=1/MUL)
                 rects = createHOGDescriptor(frame2)
-                BOX_COLOR= (0, 0, 255)
                 for (x1, y1, x2, y2) in rects:
                     x1 =round(x1*MUL)
                     y1 =round(y1*MUL)
                     x2 =round(x2*MUL)
                     y2 =round(y2*MUL)
-                    frame = cv2.rectangle(frame, (x1, y1), (x2, y2), HUMAN_BOX_COLOR, 2)
+
+                    human_point = []
+                    human_point.append([x1,y1])
+                    human_point.append([x2,y1])
+                    human_point.append([x2,y2])
+                    human_point.append([x1,y2])
+                    human_point2 = np.array(human_point,dtype=np.float64)
+
+                    ret_val_f, rvec_f, tvec_f = cv2.solvePnP(refHuman,human_point2,intrinsic,distortion)
+                    print(tvec_f[2])
+                    text ="Human:{} cm".format(tvec_f[2])
+                    cv2.putText(frame_output, text, (x1, y2-10), cv2.FONT_HERSHEY_SIMPLEX, 1, HUMAN_BOX_COLOR, 1, cv2.LINE_AA)
+
+
+                    frame_output = cv2.rectangle(frame_output, (x1, y1), (x2, y2), HUMAN_BOX_COLOR, 2)
                 
-                cv2.imshow('frame', frame)
+                cv2.imshow('frame_output', frame_output)
                 #cv2.waitKey(33)
                 key = cv2.waitKey(1)
-                #
-                #if key!=-1:
-                #    drone.keyboard(key)
+
         else:
             print("fail to open film")
     except KeyboardInterrupt:
