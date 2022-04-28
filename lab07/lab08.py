@@ -4,7 +4,7 @@ import cv2
 import glob
 import time
 import math
-#import dlib
+import dlib
 
 refHuman =[[0.0,193,0.0],[91.0,193.0,0.0],[91.0,0.0,0.0],[0.0,0.0,0.0]]
 refHuman = np.array(refHuman,dtype=np.float32)
@@ -56,7 +56,7 @@ if __name__ == '__main__':
                 ret, frame = cap.read()
                 MUL = 1.25
                 frame_output = frame.copy()
-                """
+                
                 frame2 =cv2.resize(frame, dsize=None, fx=1/MUL, fy=1/MUL)
                 detector = dlib.get_frontal_face_detector()
                 face_rects = detector(frame2, 0)
@@ -76,14 +76,17 @@ if __name__ == '__main__':
 
                     ret_val_f, rvec_f, tvec_f = cv2.solvePnP(refFace,face_point2,intrinsic,distortion)
                     
-                    print(tvec_f[2])
                     text ="face:{} cm".format(tvec_f[2])
-
+                    print(text)
                     
-                    cv2.putText(frame_output, text, (x1, y2-10), cv2.FONT_HERSHEY_SIMPLEX, 1, FACE_BOX_COLOR, 1, cv2.LINE_AA)
+                    if (y2-10<= 0):
+                        text_y = 0
+                    else:
+                        text_y = y2
+                    cv2.putText(frame_output, text, (x1, text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, FACE_BOX_COLOR, 1, cv2.LINE_AA)
 
                     frame_output = cv2.rectangle(frame_output, (x1, y1), (x2, y2), FACE_BOX_COLOR, 2)
-                """
+                
                 HUMAN_BOX_COLOR= (0, 0, 255)
                 MUL = 1.8
                 frame2 =cv2.resize(frame, dsize=None, fx=1/MUL, fy=1/MUL)
@@ -102,9 +105,14 @@ if __name__ == '__main__':
                     human_point2 = np.array(human_point,dtype=np.float64)
 
                     ret_val_f, rvec_f, tvec_f = cv2.solvePnP(refHuman,human_point2,intrinsic,distortion)
-                    print(tvec_f[2])
                     text ="Human:{} cm".format(tvec_f[2])
-                    cv2.putText(frame_output, text, (x1, y2-10), cv2.FONT_HERSHEY_SIMPLEX, 1, HUMAN_BOX_COLOR, 1, cv2.LINE_AA)
+                    print(text)
+
+                    if (y2-10<= 0):
+                        text_y = 0
+                    else:
+                        text_y = y2
+                    cv2.putText(frame_output, text, (x1, text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, HUMAN_BOX_COLOR, 1, cv2.LINE_AA)
 
 
                     frame_output = cv2.rectangle(frame_output, (x1, y1), (x2, y2), HUMAN_BOX_COLOR, 2)
